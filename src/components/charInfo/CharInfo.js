@@ -90,16 +90,17 @@ const View = ({ char }) => {
       <div className="char__descr">{description}</div>
       <div className="char__comics">Comics:</div>
       <ul className="char__comics-list">
-        {comics.length > 0 ? null : "There is no comics with this character"}
-        {comics.map((item, i) => {
-          // eslint-disable-next-line
-          if (i > 9) return;
-          return (
-            <li key={i} className="char__comics-item">
-              {item.name}
+        {comics.length > 0 ? (
+          comics.slice(0, 10).map((comic, i) => (
+            <li key={`${comic}-${i}`} className="char__comics-item">
+              {comic}
             </li>
-          );
-        })}
+          ))
+        ) : (
+          <li className="char__comics-item">
+            There is no comics with this character
+          </li>
+        )}
       </ul>
     </>
   );

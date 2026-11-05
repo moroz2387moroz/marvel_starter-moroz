@@ -64,21 +64,25 @@ const CharList = (props) => {
   };
 
   function renderItems(arr) {
-    const items = arr.map((item) => {
+    const items = arr.map((item, index) => {
       const nodeRef = itemRefs.current.get(item.id) || createRef();
       itemRefs.current.set(item.id, nodeRef);
       const isNotAvailable = item.thumbnail?.includes("image_not_available");
       const imgStyle = { objectFit: isNotAvailable ? "unset" : "cover" };
+      const itemStyle = {
+        "--char-enter-delay": `${(index % 9) * 55}ms`,
+      };
 
       return (
         <CSSTransition
           key={item.id}
           nodeRef={nodeRef}
-          timeout={500}
+          timeout={1100}
           classNames="char__item"
         >
           <li
             className="char__item"
+            style={itemStyle}
             tabIndex={0}
             ref={nodeRef}
             onClick={() => {
