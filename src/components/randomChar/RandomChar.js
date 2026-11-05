@@ -6,6 +6,9 @@ import useMarvelService from "../../services/MarvelService";
 import "./randomChar.scss";
 import mjolnir from "../../resources/img/mjolnir.png";
 
+const notAvailableImg =
+  "https://i.annihil.us/u/prod/marvel/i/mg/b/40/image_not_available.jpg";
+
 const RandomChar = () => {
   const [char, setChar] = useState(null);
   const { loading, error, getCharacter, clearError } = useMarvelService();
@@ -56,21 +59,28 @@ const RandomChar = () => {
 
 const View = ({ char }) => {
   const { name, description, thumbnail, homepage, wiki } = char;
-  let imgStyle = { objectFit: "cover" };
-  if (
-    thumbnail ===
-    "http://i.annihil.us/u/prod/marvel/i/mg/b/40/image_not_available.jpg"
-  ) {
-    imgStyle = { objectFit: "contain" };
-  }
+  const isNotAvailable = thumbnail?.includes("image_not_available");
+  const imgStyle = { objectFit: isNotAvailable ? "unset" : "cover" };
+
+  const handleImgError = (e) => {
+    const img = e.currentTarget;
+    if (img.src === notAvailableImg) {
+      img.onerror = null;
+      return;
+    }
+
+    img.src = notAvailableImg;
+    img.style.objectFit = "unset";
+  };
 
   return (
     <div className="randomchar__block">
       <img
-        src={thumbnail}
+        src={isNotAvailable ? notAvailableImg : thumbnail}
         alt="Random character"
         className="randomchar__img"
         style={imgStyle}
+        onError={handleImgError}
       />
       <div className="randomchar__info">
         <p className="randomchar__name">{name}</p>
