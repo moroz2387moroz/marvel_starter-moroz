@@ -8,6 +8,9 @@ import Skeleton from "../skeleton/Skeleton";
 
 import "./charInfo.scss";
 
+const notAvailableImg =
+  "https://i.annihil.us/u/prod/marvel/i/mg/b/40/image_not_available.jpg";
+
 const CharInfo = (props) => {
   const [char, setChar] = useState(null);
 
@@ -49,18 +52,29 @@ const CharInfo = (props) => {
 const View = ({ char }) => {
   const { name, description, thumbnail, homepage, wiki, comics } = char;
 
-  let imgStyle = { objectFit: "cover" };
-  if (
-    thumbnail ===
-    "http://i.annihil.us/u/prod/marvel/i/mg/b/40/image_not_available.jpg"
-  ) {
-    imgStyle = { objectFit: "contain" };
-  }
+  const isNotAvailable = thumbnail?.includes("image_not_available");
+  const imgStyle = { objectFit: isNotAvailable ? "unset" : "cover" };
+
+  const handleImgError = (e) => {
+    const img = e.currentTarget;
+    if (img.src === notAvailableImg) {
+      img.onerror = null;
+      return;
+    }
+
+    img.src = notAvailableImg;
+    img.style.objectFit = "unset";
+  };
 
   return (
     <>
       <div className="char__basics">
-        <img src={thumbnail} alt={name} style={imgStyle} />
+        <img
+          src={isNotAvailable ? notAvailableImg : thumbnail}
+          alt={name}
+          style={imgStyle}
+          onError={handleImgError}
+        />
         <div>
           <div className="char__info-name">{name}</div>
           <div className="char__btns">
