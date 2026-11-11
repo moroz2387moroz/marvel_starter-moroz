@@ -17,22 +17,13 @@ const CharInfo = (props) => {
   const { loading, error, getCharacter, clearError } = useMarvelService();
 
   useEffect(() => {
-    updateChar();
-  }, [props.charId]);
-
-  const updateChar = () => {
-    const { charId } = props;
-    if (!charId) {
+    if (!props.charId) {
       return;
     }
 
     clearError();
-    getCharacter(charId).then(onCharLoaded);
-  };
-
-  const onCharLoaded = (char) => {
-    setChar(char);
-  };
+    getCharacter(props.charId).then(setChar);
+  }, [props.charId, clearError, getCharacter]);
 
   const skeleton = char || loading || error ? null : <Skeleton />;
   const errorMessage = error ? <ErrorMessage /> : null;

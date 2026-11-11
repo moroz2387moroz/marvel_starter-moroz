@@ -1,4 +1,4 @@
-import { createRef, useState, useEffect, useRef } from "react";
+import { createRef, useState, useEffect, useRef, useCallback } from "react";
 import PropTypes from "prop-types";
 import { CSSTransition, TransitionGroup } from "react-transition-group";
 
@@ -19,25 +19,19 @@ const CharList = (props) => {
 
   const { loading, error, getAllCharacters } = useMarvelService();
 
-  useEffect(() => {
-    onRequest(offset, true);
-  }, []);
-
-  const onRequest = (offset, initial) => {
+  const onRequest = useCallback((offset, initial) => {
     initial ? setnewItemLoading(false) : setnewItemLoading(true);
-    getAllCharacters(offset).then(onCharListLoaded);
-  };
+    getAllCharacters(offset).then((newCharList) => {
+      setCharList((currentList) => [...currentList, ...newCharList]);
+      setnewItemLoading(false);
+      setOffset(offset + 9);
+      setCharEnded(newCharList.length < 9);
+    });
+  }, [getAllCharacters]);
 
-  const onCharListLoaded = async (newCharList) => {
-    let ended = false;
-    if (newCharList.length < 9) {
-      ended = true;
-    }
-    setCharList([...charList, ...newCharList]);
-    setnewItemLoading(false);
-    setOffset(offset + 9);
-    setCharEnded(ended);
-  };
+  useEffect(() => {
+    onRequest(0, true);
+  }, [onRequest]);
 
   const itemRefs = useRef(new Map());
 

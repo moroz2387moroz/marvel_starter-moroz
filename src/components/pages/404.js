@@ -1,9 +1,15 @@
+import { Helmet } from "react-helmet";
 import ErrorMessage from "../errorMessage/ErrorMessage";
 import { Link } from "react-router-dom";
 
 const Page404 = () => {
   return (
     <div>
+      <Helmet>
+        <meta name="description" content="The requested Marvel page was not found." />
+        <meta name="robots" content="noindex, nofollow" />
+        <title>Page Not Found | Marvel Information Portal</title>
+      </Helmet>
       <ErrorMessage />
       <p style={{ textAlign: "center", fontWeight: "bold", fontSize: "24px" }}>
         Page doesn't exist

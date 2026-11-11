@@ -1,4 +1,4 @@
-import { createRef, useState, useEffect, useRef } from "react";
+import { createRef, useState, useEffect, useRef, useCallback } from "react";
 import { Link } from "react-router-dom";
 import { CSSTransition, TransitionGroup } from "react-transition-group";
 import useMarvelService from "../../services/MarvelService";
@@ -16,25 +16,19 @@ const ComicsList = () => {
 
   const { loading, error, getAllComics } = useMarvelService();
 
-  useEffect(() => {
-    onRequest(offset, true);
-  }, []);
-
-  const onRequest = (offset, initial) => {
+  const onRequest = useCallback((offset, initial) => {
     initial ? setnewItemLoading(false) : setnewItemLoading(true);
-    getAllComics(offset).then(onComicsListLoaded);
-  };
+    getAllComics(offset).then((newComicsList) => {
+      setComicsList((currentList) => [...currentList, ...newComicsList]);
+      setnewItemLoading(false);
+      setOffset(offset + 8);
+      setComicsEnded(newComicsList.length < 8);
+    });
+  }, [getAllComics]);
 
-  const onComicsListLoaded = (newComicsList) => {
-    let ended = false;
-    if (newComicsList.length < 8) {
-      ended = true;
-    }
-    setComicsList([...comicsList, ...newComicsList]);
-    setnewItemLoading(false);
-    setOffset(offset + 8);
-    setComicsEnded(ended);
-  };
+  useEffect(() => {
+    onRequest(0, true);
+  }, [onRequest]);
 
   function renderItems(arr) {
     const items = arr.map((item, index) => {
