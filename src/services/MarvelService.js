@@ -44,40 +44,55 @@ const transformComics = (comics) => {
 };
 
 const useMarvelService = () => {
-  const { loading, request, error, clearError } = useHttp();
+  const { request, clearError, process, setProcess } = useHttp();
 
-  const getAllCharacters = useCallback(async (offset = baseOffset) => {
-    const res = await request(
-      `${apiBase}characters?limit=9&offset=${offset}&${apiKey}`,
-    );
-    return res.data.results.map(transformCharacter);
-  }, [request]);
+  const getAllCharacters = useCallback(
+    async (offset = baseOffset) => {
+      const res = await request(
+        `${apiBase}characters?limit=9&offset=${offset}&${apiKey}`,
+      );
+      return res.data.results.map(transformCharacter);
+    },
+    [request],
+  );
 
-  const getCharacterByName = useCallback(async (name) => {
-    const res = await request(`${apiBase}characters?name=${name}&${apiKey}`);
-    return res.data.results.map(transformCharacter);
-  }, [request]);
+  const getCharacterByName = useCallback(
+    async (name) => {
+      const res = await request(`${apiBase}characters?name=${name}&${apiKey}`);
+      return res.data.results.map(transformCharacter);
+    },
+    [request],
+  );
 
-  const getCharacter = useCallback(async (id) => {
-    const res = await request(`${apiBase}characters/${id}?${apiKey}`);
-    return transformCharacter(res.data.results[0]);
-  }, [request]);
+  const getCharacter = useCallback(
+    async (id) => {
+      const res = await request(`${apiBase}characters/${id}?${apiKey}`);
+      return transformCharacter(res.data.results[0]);
+    },
+    [request],
+  );
 
-  const getAllComics = useCallback(async (offset = 0) => {
-    const res = await request(
-      `${apiBase}comics?orderBy=issueNumber&limit=8&offset=${offset}&${apiKey}`,
-    );
-    return res.data.results.map(transformComics);
-  }, [request]);
+  const getAllComics = useCallback(
+    async (offset = 0) => {
+      const res = await request(
+        `${apiBase}comics?orderBy=issueNumber&limit=8&offset=${offset}&${apiKey}`,
+      );
+      return res.data.results.map(transformComics);
+    },
+    [request],
+  );
 
-  const getComic = useCallback(async (id) => {
-    const res = await request(`${apiBase}comics/${id}?${apiKey}`);
-    return transformComics(res.data.results[0]);
-  }, [request]);
+  const getComic = useCallback(
+    async (id) => {
+      const res = await request(`${apiBase}comics/${id}?${apiKey}`);
+      return transformComics(res.data.results[0]);
+    },
+    [request],
+  );
 
   return {
-    loading,
-    error,
+    process,
+    setProcess,
     clearError,
     getAllCharacters,
     getCharacterByName,

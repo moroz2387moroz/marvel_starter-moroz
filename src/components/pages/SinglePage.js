@@ -3,15 +3,14 @@ import { useState, useEffect } from "react";
 import { Helmet } from "react-helmet";
 
 import useMarvelService from "../../services/MarvelService";
-import Spinner from "../sspinner/Spinner";
-import ErrorMessage from "../errorMessage/ErrorMessage";
+import setContent from "../../utils/setContent";
 import AppBanner from "../appBanner/AppBanner";
 
 const SinglePage = ({ Component, dataType }) => {
   const { id } = useParams();
   const [data, setData] = useState(null);
   const [loadError, setLoadError] = useState(false);
-  const { loading, error, getComic, getCharacter, clearError } =
+  const { getComic, getCharacter, clearError, process, setProcess } =
     useMarvelService();
 
   useEffect(() => {
@@ -21,6 +20,7 @@ const SinglePage = ({ Component, dataType }) => {
         (result) => {
           if (!cancelled) {
             setData(result);
+            setProcess("confirmed");
           }
         },
         () => {
@@ -49,19 +49,16 @@ const SinglePage = ({ Component, dataType }) => {
     return () => {
       cancelled = true;
     };
-  }, [id, dataType, clearError, getComic, getCharacter]);
+  }, [id, dataType, clearError, getComic, getCharacter, setProcess]);
 
-  const errorMessage = error || loadError ? <ErrorMessage /> : null;
-  const spinner = loading ? <Spinner /> : null;
-  const content = !(loading || error || loadError || !data) ? (
-    <Component data={data} />
-  ) : null;
+  const content = setContent(loadError ? "error" : process, Component, data);
   const pageType = dataType === "comic" ? "Comic" : "Character";
   const pageName = dataType === "comic" ? data?.title : data?.name;
   const title = pageName
     ? `${pageName} | Marvel Information Portal`
     : `${pageType} | Marvel Information Portal`;
-  const description = data?.description || `Explore Marvel ${pageType.toLowerCase()} details.`;
+  const description =
+    data?.description || `Explore Marvel ${pageType.toLowerCase()} details.`;
 
   return (
     <>
@@ -70,8 +67,6 @@ const SinglePage = ({ Component, dataType }) => {
         <title>{title}</title>
       </Helmet>
       <AppBanner />
-      {errorMessage}
-      {spinner}
       {content}
     </>
   );

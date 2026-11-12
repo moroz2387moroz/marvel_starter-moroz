@@ -1,15 +1,42 @@
 import { createRef, useState, useEffect, useRef, useCallback } from "react";
 import PropTypes from "prop-types";
 import { CSSTransition, TransitionGroup } from "react-transition-group";
-
-import useMarvelService from "../../services/MarvelService";
 import Spinner from "../sspinner/Spinner";
 import ErrorMessage from "../errorMessage/ErrorMessage";
+
+import useMarvelService from "../../services/MarvelService";
 
 import "./charList.scss";
 
 const notAvailableImg =
   "https://i.annihil.us/u/prod/marvel/i/mg/b/40/image_not_available.jpg";
+
+const setContent = (process, content, newItemLoading) => {
+  let status = null;
+
+  switch (process) {
+    case "waiting":
+      status = <Spinner />;
+      break;
+    case "loading":
+      status = newItemLoading ? null : <Spinner />;
+      break;
+    case "confirmed":
+      break;
+    case "error":
+      status = <ErrorMessage />;
+      break;
+    default:
+      throw new Error("Unexpected process state");
+  }
+
+  return (
+    <>
+      {status}
+      {content}
+    </>
+  );
+};
 
 const CharList = (props) => {
   const [charList, setCharList] = useState([]);
@@ -17,17 +44,22 @@ const CharList = (props) => {
   const [offset, setOffset] = useState(0);
   const [charEnded, setCharEnded] = useState(false);
 
-  const { loading, error, getAllCharacters } = useMarvelService();
+  const { getAllCharacters, process, setProcess } = useMarvelService();
 
-  const onRequest = useCallback((offset, initial) => {
-    initial ? setnewItemLoading(false) : setnewItemLoading(true);
-    getAllCharacters(offset).then((newCharList) => {
-      setCharList((currentList) => [...currentList, ...newCharList]);
-      setnewItemLoading(false);
-      setOffset(offset + 9);
-      setCharEnded(newCharList.length < 9);
-    });
-  }, [getAllCharacters]);
+  const onRequest = useCallback(
+    (offset, initial) => {
+      initial ? setnewItemLoading(false) : setnewItemLoading(true);
+      getAllCharacters(offset)
+        .then((newCharList) => {
+          setCharList((currentList) => [...currentList, ...newCharList]);
+          setnewItemLoading(false);
+          setOffset(offset + 9);
+          setCharEnded(newCharList.length < 9);
+        })
+        .then(() => setProcess("confirmed"));
+    },
+    [getAllCharacters],
+  );
 
   useEffect(() => {
     onRequest(0, true);
@@ -109,16 +141,9 @@ const CharList = (props) => {
     );
   }
 
-  const items = renderItems(charList);
-
-  const errorMessage = error ? <ErrorMessage /> : null;
-  const spinner = loading && !newItemLoading ? <Spinner /> : null;
-
   return (
     <div className="char__list">
-      {errorMessage}
-      {spinner}
-      {items}
+      {setContent(process, renderItems(charList), newItemLoading)}
       <button
         disabled={newItemLoading}
         style={{ display: charEnded ? "none" : "block" }}

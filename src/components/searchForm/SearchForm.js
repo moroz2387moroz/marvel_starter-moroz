@@ -15,10 +15,12 @@ import "./searchForm.scss";
 
 const SearchForm = () => {
   const [char, setChar] = useState(null);
-  const { loading, error, getCharacterByName, clearError } = useMarvelService();
+  const { process, setProcess, getCharacterByName, clearError } =
+    useMarvelService();
 
   const onCharLoaded = (char) => {
     setChar(char);
+    setProcess("confirmed");
   };
 
   const updateChar = (name) => {
@@ -34,7 +36,7 @@ const SearchForm = () => {
     getCharacterByName(normalizedName).then(onCharLoaded);
   };
 
-  const errorMessage = error ? (
+  const errorMessage = process === "error" ? (
     <div className="char__search-critical-error">
       <ErrorMessage />
     </div>
@@ -84,7 +86,7 @@ const SearchForm = () => {
             <button
               type="submit"
               className="button button__main"
-              disabled={loading}
+              disabled={process === "loading"}
             >
               <div className="inner">find</div>
             </button>
